@@ -64,18 +64,23 @@ export class ValidatorsService {
     if (this.cacheEnabled) {
       const cachedValidators = await this.getFromCache<Validator[]>(VALIDATORS_CACHE_KEY);
       if (cachedValidators) {
+        // this.logger.debug('Returning cached validators')
+        // this.logger.debug(`Read this data from cache: ${JSON.stringify(cachedValidators).slice(0, 200)}`)
         return cachedValidators;
       }
     }
 
     const validators = await this.queryValidators();
     await this.setCache(VALIDATORS_CACHE_KEY, validators);
+    // this.logger.debug('Stored validators in cache')
+    // this.logger.debug(`This data written back: ${JSON.stringify(validators).slice(0, 200)}`)
 
     return validators;
   }
 
   public async getValidatorsHandlers(): Promise<Map<string, string>> {
     if (this.cacheEnabled) {
+      // this.logger.debug('Cache is enabled')
       const cacheHandlersString = await this.getFromCache<string>(VALIDATORS_HANDLERS_CACHE_KEY);
       // NOTE: cacheHandlersString is NOT a string (it is an Object)
       let result:Map<string, string> = new Map([['bad', 'data']]);
@@ -180,6 +185,7 @@ export class ValidatorsService {
     );
 
     let handles = await this.getValidatorsHandlers();
+    this.logger.debug(`handles map has ${handles.size} entries`)
     let allValidators = [...currentValidators, ...eligibleValidators];
     return await Promise.all(
       allValidators.map(async (validator) => {
@@ -188,11 +194,11 @@ export class ValidatorsService {
         const currentBid = await this.olService.getCurrentBid(validator.address);
         const slowWallet = await this.olService.getSlowWallet(validator.address);
         // If we hit an uninitialized V7 slow wallet we need to override the unlocked balance as zero
-        const initialized = await this.olService.getInitialized(validator.address);
+        const initialized = await this.olService.getIsInitialized(validator.address);
         const unlocked = initialized ? Number(slowWallet?.unlocked) : Number(0);
         const addr = validator.address.toString('hex').toLocaleUpperCase();
         if (!handles.get(addr)) {
-          // this.logger.debug(`handles miss for address ${addr}`)
+          this.logger.debug(`handles miss for address ${addr}`)
         }
         const handle = handles.get(addr) || null;
 
@@ -333,6 +339,7 @@ export class ValidatorsService {
     const eligible = await this.olService.getEligibleValidators();
     const active = await this.olService.getValidatorSet();
     const handles = await this.getValidatorsHandlers();
+    this.logger.debug(`handles map has ${handles.size} entries`)
     const currentEpoch = await this.olService.aptosClient
       .getLedgerInfo()
       .then((info) => Number(info.epoch));

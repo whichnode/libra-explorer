@@ -51,7 +51,6 @@ export class SafeRedisClient {
         port,
         connectTimeout: 10000, // 10 seconds connect timeout
         reconnectStrategy: (retries) => {
-          // More conservative retry approach
           if (retries > 10) {
             // After 10 retries, slow down significantly
             const delay = Math.min(5000 + (retries - 10) * 1000, 30000);
@@ -217,7 +216,7 @@ export class SafeRedisClient {
   }
 }
 
-// Create a singleton instance
+// Create a Singleton instance
 export const redisClient = new SafeRedisClient(new ConfigService());
 
 // Export connection options for BullMQ - this should be used in all queue registrations
