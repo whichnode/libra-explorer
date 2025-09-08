@@ -12,7 +12,7 @@ COPY --from=transformerBuilder /usr/local/cargo/bin/transformer /usr/local/bin/t
 WORKDIR /app
 
 COPY ./package.json ./
-RUN ["npm", "ci"]
+RUN ["npm", "install"]
 COPY ./ ./
 
 RUN ["npx", "prisma", "generate"]
