@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
-    "node": "^20.11.1"
+    "node": "^22"
   },
   "scripts": {
     "clean": "rimraf dist",
