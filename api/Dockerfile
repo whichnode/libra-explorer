@@ -11,7 +11,7 @@ COPY --from=transformerBuilder /usr/local/cargo/bin/transformer /usr/local/bin/t
 
 WORKDIR /app
 
-COPY ./package.json ./package-lock.json ./
+COPY ./package.json ./
 RUN ["npm", "ci"]
 COPY ./ ./
 
